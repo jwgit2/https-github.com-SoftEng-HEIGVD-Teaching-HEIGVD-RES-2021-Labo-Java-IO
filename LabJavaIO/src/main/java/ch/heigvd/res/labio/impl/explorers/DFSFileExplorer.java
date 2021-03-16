@@ -5,8 +5,8 @@ import ch.heigvd.res.labio.interfaces.IFileExplorer;
 import ch.heigvd.res.labio.interfaces.IFileVisitor;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.util.Arrays;
+
 
 /**
  * This implementation of the IFileExplorer interface performs a depth-first
@@ -22,9 +22,25 @@ public class DFSFileExplorer implements IFileExplorer {
   public void explore(File rootDirectory, IFileVisitor visitor) {
     if (visitor != null && rootDirectory != null){
       visitor.visit(rootDirectory);
-
+      // I'm quite happy that we don't have a lot of graph dev to do in embedded development
+      File[] foldersList = rootDirectory.listFiles();
+      // I get my folders right on
+      if (foldersList != null) {
+        // These tests ain't gonna let me go through this
+        Arrays.sort(foldersList);
+        // My folders are sorted yay
+        for (File file : foldersList) {
+          if (file.isDirectory()) {
+            // Is there a subfolder there?
+            explore(file, visitor);
+            // Show me what u got
+          } else {
+            // Anyone? No?
+            visitor.visit(file);
+          }
+        }
+      }
     }
   }
-
 }
 
