@@ -18,24 +18,46 @@ import java.util.logging.Logger;
 public class FileNumberingFilterWriter extends FilterWriter {
 
   private static final Logger LOG = Logger.getLogger(FileNumberingFilterWriter.class.getName());
-
+  private int lineNumber = 1;
+  private boolean isFirstCalled = true;
+  private boolean isSeparator = false;
+  private boolean isDoubleSeparator = false;
   public FileNumberingFilterWriter(Writer out) {
     super(out);
   }
 
   @Override
   public void write(String str, int off, int len) throws IOException {
-     throw new UnsupportedOperationException("The student has not implemented this method yet.");
+    str = str.substring(off, off + len);
+    String[] parts = str.split("(?<=\n|\r(?!\n))");
+    String filtered = new String();
+    for (String part : parts) {
+      if (isFirstCalled && !isSeparator) {
+        filtered += lineNumber + "\t"; // We start by adding the line number and \t
+        isFirstCalled = false; // Duh...
+      }
+      filtered += part; // We add the string/part of string
+      isDoubleSeparator = isSeparator && (len == 1);
+      isSeparator = part.endsWith("\n") || part.endsWith("\r");
+      if(isSeparator && !isDoubleSeparator){ // separator found
+        lineNumber++;
+        filtered += lineNumber + "\t";
+        }
+      isDoubleSeparator = false;
+
+    }
+     out.write(filtered);
   }
 
   @Override
   public void write(char[] cbuf, int off, int len) throws IOException {
-    throw new UnsupportedOperationException("The student has not implemented this method yet.");
+    this.write(cbuf.toString(), off, len);
   }
 
   @Override
   public void write(int c) throws IOException {
-    throw new UnsupportedOperationException("The student has not implemented this method yet.");
+    isSeparator = (c == '\r' || c == '\n');
+    this.write(String.valueOf((char) c),0, 1); //huhu not very proud of this one
   }
 
 }
