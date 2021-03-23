@@ -56,8 +56,20 @@ public class FileNumberingFilterWriter extends FilterWriter {
 
   @Override
   public void write(int c) throws IOException {
-    isSeparator = (c == '\r' || c == '\n');
-    this.write(String.valueOf((char) c),0, 1); //huhu not very proud of this one
-  }
+    boolean isSeparatorInt = (c == '\r' || c == '\n');
+    StringBuilder sb = new StringBuilder();
+    if(isFirstCalled && !isSeparator) {
+      isFirstCalled = false;
+      out.write(lineNumber + "\t");
+      // for the return
+    }
 
+    if(isSeparator && !isSeparatorInt){
+      lineNumber++;
+      out.write(lineNumber + "\t");
+    }
+
+    out.write(c);
+    isSeparator = isSeparatorInt;
+  }
 }
